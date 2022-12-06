@@ -41,7 +41,7 @@ files = list.files(path = mydir, pattern = "*.csv", full.names = TRUE)
 files
 Annual_AQI_by_county_2010_2020 <- ldply(files, read.csv) 
 
-Annual_AQI_by_state_2010_2020 <- Annual_AQI_by_county_2010_2020
+Annual_AQI_by_state_2010_2020 <- Annual_AQI_by_county_2010_2020 %>% group_by(Year, State) %>% dplyr::summarise(Year=first(Year), Avg.Unhealthy.Days= mean(Unhealthy.Days), Avg.Max.AQI=mean(Max.AQI), Avg.Days.PM2.5=mean(Days.PM2.5))
 
 write.csv(Annual_AQI_by_state_2010_2020, file = "./Data/Processed/Annual_AQI_by_state_2010_2020_Processed.csv", row.names=FALSE)
 
@@ -85,22 +85,41 @@ Mig_outflows_by_state_2010_2020 <- ldply(files, read.csv)
 
 Mig_outflows_by_state_2010_2020_filtered <- filter(Mig_outflows_by_state_2010_2020, y2_statefips == 96) # Filtering by the total outflows by state 
 
+colnames(Mig_outflows_by_state_2010_2020_filtered)[1] = "FIPS_Code" # Changing the name of the variable with information of the code state
+
+#Saving the dataset with Air Quality information 
+
 write.csv(Annual_AQI_by_state_2010_2020, file = "./Data/Processed/Annual_AQI_by_state_2010_2020_Processed.csv", row.names=FALSE)
 
 # Scrapping the FIPS Codes to paste into the air quality dataset 
 
 the_website <- read_html('https://www.bls.gov/respondents/mwr/electronic-data-interchange/appendix-d-usps-state-abbreviations-and-fips-codes.htm')
 
-#2&3 Locate elements and read their text attributes into variables
+#Creating the variables for the states and the codes 
+
 the_states <- the_website %>% html_nodes("tr+ tr td:nth-child(4) , tr+ tr td:nth-child(1)") %>% html_text()
 the_states
 
 the_codes <- the_website %>% html_nodes("tr+ tr td:nth-child(6) , tr+ tr td:nth-child(3)") %>% html_text()
 the_codes
-df_states_codes <- data.frame("States" = the_states,
-                             "FIPS_Codes" = the_codes)
+df_states_codes <- data.frame("State" = the_states,
+                             "FIPS_Code" = as.numeric(the_codes))
+
+#Paste the state code to the air quality dataset 
+
+Annual_AQI_by_state_2010_2020 <- merge(Annual_AQI_by_state_2010_2020, df_states_codes, by='State')
+
+write.csv(Annual_AQI_by_state_2010_2020, file = "./Data/Processed/Annual_AQI_by_state_2010_2020_Processed.csv", row.names=FALSE)
+
+#Paste air quality and migration data 
+
+AQI_Mig.outflows_by.state_2010_2020 <- merge(Annual_AQI_by_state_2010_2020, Mig_outflows_by_state_2010_2020_filtered, by=c("FIPS_Code","Year"))
+
+AQI_Mig.outflows_by.state_2010_2020 <- AQI_Mig.outflows_by.state_2010_2020 %>% arrange(Year, FIPS_Code)
 
 
+
+write.csv(Annual_AQI_by_state_2010_2020, file = "./Data/Processed/AQI_Mig.outflows_by.state_2010_2020.csv", row.names=FALSE)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
