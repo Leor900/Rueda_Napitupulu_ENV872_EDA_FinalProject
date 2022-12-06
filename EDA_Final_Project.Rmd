@@ -18,7 +18,7 @@ knitr::opts_chunk$set(tidy.opts=list(width.cutoff=70), tidy=TRUE)
 ## Data Wrangling 
 
 
-```{r Getting the working directory and loading packages}
+```{r Getting the working directory and loading packages, echo=FALSE}
 
 getwd()
 
@@ -29,10 +29,10 @@ library('tidyverse')
 library('rvest')
 ```
 
-## Importing data
+## Data Wrangling
 
 
-```{r pressure, echo=FALSE}
+```{r Data Wrangling, echo=FALSE}
 
 # Air quality datasets 2010-2020
 
@@ -117,9 +117,17 @@ AQI_Mig.outflows_by.state_2010_2020 <- merge(Annual_AQI_by_state_2010_2020, Mig_
 
 AQI_Mig.outflows_by.state_2010_2020 <- AQI_Mig.outflows_by.state_2010_2020 %>% arrange(Year, FIPS_Code)
 
+colnames(AQI_Mig.outflows_by.state_2010_2020)[11] = "Migrants.outflows" # Changing the name of the variable with information of the code state
 
+AQI_Mig.outflows_by.state_2010_2020 = subset(AQI_Mig.outflows_by.state_2010_2020, select = -c(y2_statefips, y2_state_name, n1, AGI))
 
 write.csv(Annual_AQI_by_state_2010_2020, file = "./Data/Processed/AQI_Mig.outflows_by.state_2010_2020.csv", row.names=FALSE)
+
+cor.test(AQI_Mig.outflows_by.state_2010_2020$Avg.Unhealthy.Days, AQI_Mig.outflows_by.state_2010_2020$Migrants.outflows)
+
+cor.test(AQI_Mig.outflows_by.state_2010_2020$Avg.Max.AQI, AQI_Mig.outflows_by.state_2010_2020$Migrants.outflows)
+
+cor.test(AQI_Mig.outflows_by.state_2010_2020$Avg.Days.PM2.5, AQI_Mig.outflows_by.state_2010_2020$Migrants.outflows)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
