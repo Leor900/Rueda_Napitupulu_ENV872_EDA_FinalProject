@@ -1,0 +1,106 @@
+---
+title: "EDA_FinalProject"
+author: "Leonardo Rueda"
+date: "`r Sys.Date()`"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+classoption: landscape
+chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=70), tidy=TRUE)
+#knitr::opts_knit$set(root.dir = "C:\Users\leor9\OneDrive\Leonardo\MIDP Courses Fall 2022\R Class\Project\Rueda_Napitupulu_ENV872_EDA_FinalProject")
+
+```
+
+## Data Wrangling 
+
+
+```{r Getting the working directory and loading packages}
+
+getwd()
+
+library('dplyr')
+library('plyr')
+library('ggplot2')
+library('tidyverse')
+library('rvest')
+```
+
+## Importing data
+
+
+```{r pressure, echo=FALSE}
+
+# Air quality datasets 2010-2020
+
+mydir = "./Data/Raw/Annual_aqi_by_county"
+files = list.files(path = mydir, pattern = "*.csv", full.names = TRUE)
+files
+Annual_AQI_by_county_2010_2020 <- ldply(files, read.csv) 
+
+Annual_AQI_by_state_2010_2020 <- Annual_AQI_by_county_2010_2020
+
+write.csv(Annual_AQI_by_state_2010_2020, file = "./Data/Processed/Annual_AQI_by_state_2010_2020_Processed.csv", row.names=FALSE)
+
+# Migration outflows by State
+
+# Creating the variable "Year" for each file
+
+read.csv("./Data/Raw/Outflows_by_state/stateoutflow1112.csv",
+stringsAsFactors = TRUE) %>% mutate(Year=2012) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1112.csv", row.names=FALSE) #2012
+
+read.csv("./Data/Raw/Outflows_by_state/stateoutflow1213.csv",
+stringsAsFactors = TRUE) %>% mutate(Year=2013) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1213.csv", row.names=FALSE) #2013
+
+read.csv("./Data/Raw/Outflows_by_state/stateoutflow1314.csv",
+stringsAsFactors = TRUE) %>% mutate(Year=2014) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1314.csv", row.names=FALSE) #2014
+
+read.csv("./Data/Raw/Outflows_by_state/stateoutflow1415.csv",
+stringsAsFactors = TRUE) %>% mutate(Year=2015) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1415.csv", row.names=FALSE) #2015
+
+read.csv("./Data/Raw/Outflows_by_state/stateoutflow1516.csv",
+stringsAsFactors = TRUE) %>% mutate(Year=2016) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1516.csv", row.names=FALSE) #2016
+
+read.csv("./Data/Raw/Outflows_by_state/stateoutflow1617.csv",
+stringsAsFactors = TRUE) %>% mutate(Year=2017) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1617.csv", row.names=FALSE) #2017
+
+read.csv("./Data/Raw/Outflows_by_state/stateoutflow1718.csv",
+stringsAsFactors = TRUE) %>% mutate(Year=2018) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1718.csv", row.names=FALSE) #2018
+
+read.csv("./Data/Raw/Outflows_by_state/stateoutflow1819.csv",
+stringsAsFactors = TRUE) %>% mutate(Year=2019) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1819.csv", row.names=FALSE) #2019
+
+read.csv("./Data/Raw/Outflows_by_state/stateoutflow1920.csv",
+stringsAsFactors = TRUE) %>% mutate(Year=2020) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1920.csv", row.names=FALSE) #2020
+
+# Merging the dataset for years 2012 - 2020
+
+mydir = "./Data/Raw/Outflows_by_state"
+files = list.files(path = mydir, pattern = "*.csv", full.names = TRUE)
+files
+Mig_outflows_by_state_2010_2020 <- ldply(files, read.csv) 
+
+Mig_outflows_by_state_2010_2020_filtered <- filter(Mig_outflows_by_state_2010_2020, y2_statefips == 96) # Filtering by the total outflows by state 
+
+write.csv(Annual_AQI_by_state_2010_2020, file = "./Data/Processed/Annual_AQI_by_state_2010_2020_Processed.csv", row.names=FALSE)
+
+# Scrapping the FIPS Codes to paste into the air quality dataset 
+
+the_website <- read_html('https://www.bls.gov/respondents/mwr/electronic-data-interchange/appendix-d-usps-state-abbreviations-and-fips-codes.htm')
+
+#2&3 Locate elements and read their text attributes into variables
+the_states <- the_website %>% html_nodes("tr+ tr td:nth-child(4) , tr+ tr td:nth-child(1)") %>% html_text()
+the_states
+
+the_codes <- the_website %>% html_nodes("tr+ tr td:nth-child(6) , tr+ tr td:nth-child(3)") %>% html_text()
+the_codes
+df_states_codes <- data.frame("States" = the_states,
+                             "FIPS_Codes" = the_codes)
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
