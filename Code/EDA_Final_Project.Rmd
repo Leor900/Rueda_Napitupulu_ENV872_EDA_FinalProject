@@ -23,6 +23,7 @@ chunk_output_type: console
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(tidy.opts=list(width.cutoff=70), tidy=TRUE)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.height=5, fig.width=5)
 knitr::opts_knit$set(root.dir = "C:/Users/leor9/OneDrive/Leonardo/MIDP Courses Fall 2022/R Class/Project/Rueda_Napitupulu_ENV872_EDA_FinalProject")
 
 ```
@@ -36,13 +37,11 @@ knitr::opts_knit$set(root.dir = "C:/Users/leor9/OneDrive/Leonardo/MIDP Courses F
 
 ## Rationale and Research Questions
 
-This project looks at the effects of air pollution on inter-state migration in the United States using the Air Quality Index datasets from EPA (available at https://aqs.epa.gov/aqsweb/airdata/download_files.html) and the Population Migration data from the IRS (available at https://www.irs.gov/statistics/soi-tax-stats-migration-data) for the period 2012-2020. 
+This project looks at the effects of air pollution on inter-state migration in the United States using the Air Quality Index datasets from EPA and the Population Migration data from the IRS for the period 2013-2020. 
 
 Evidence from middle-income countries shows that air pollution has negative impacts on several health and economic outcomes, such as mortality rates, health expenditures, mental health, hours worked, labor productivity and income.  Additionally, other studies have shown how migration decisions are affected by air pollution. For instance, Chen, S., Oliva, P., & Zhang, P. (2022) found that a 10 percent increase in air pollution, holding everything else constant, reduces population through net outmigration by about 2.8 percent in a given county in China (see Chen, S., Oliva, P., & Zhang, P. (2022). The effect of air pollution on migration: Evidence from China. Journal of Development Economics, 156, 102833. https://doi.org/10.1016/j.jdeveco.2022.102833) 
 
 Our hypothesis is that there is a positive relationship between high air pollution and migration outflows, that is, the highest the pollution registered by the Air Quality Index (AQI) in a state in a given year, the higher the number of people leaving that state the same year. 
-
-The Air Quality Index dataset provides annual information per county about the maximum values reached by the AQI, the number of days in which this index reached values considered unhealthy, and the number of days with PM2.5 particles recorded. The Air Quality Index dataset provides annual information at the State level about the number of people whose reported home address changed in their individual income tax returns. 
 
 ```{r Getting the working directory and loading packages, include=FALSE, message=FALSE, warning=FALSE}
 
@@ -70,45 +69,36 @@ theme_set(mytheme)
 
 **1. Air Quality Datasets**
 
-* The raw AQI datasets are available by year. Therefore, we create a dataset with the information from 2010 to 2020. 
-* This dataset is at the county level. We aggregate the information at the state level. Likewise, we calculate the state averages for the variables Unhealthy.Days, Max.AQI, and Days.PM2.5.  
-* We save the new dataset in the data/processed folder. 
-
+The Air Quality Index dataset provides annual information per county about the maximum values reached by the AQI, the number of days in which this index reached values considered unhealthy, and the number of days with PM2.5 particles recorded. The information is capture by the EPA local air quality stations. These datasets are available at https://aqs.epa.gov/aqsweb/airdata/download_files.html. We create a dataset with the information from 2013 to 2020 and aggregate the information at the state level. Likewise, we calculate the state averages for the variables Unhealthy.Days, Max.AQI, and Days.PM2.5.
 
 ```{r AQI datasets wrangling, include=FALSE, message=FALSE, warning=FALSE}
 
-# Air quality datasets 2010-2020
+# Air quality datasets 2013-2020
 
 mydir = "./Data/Raw/Annual_aqi_by_county"
 files = list.files(path = mydir, pattern = "*.csv", full.names = TRUE)
 files
-Annual_AQI_by_county_2010_2020 <- ldply(files, read.csv) 
+Annual_AQI_by_county_2013_2020 <- ldply(files, read.csv) 
 
 # Dataset at the state level and averages for variables of interest 
 
-Annual_AQI_by_state_2010_2020 <- Annual_AQI_by_county_2010_2020 %>% group_by(Year, State) %>% dplyr::summarise(Year=first(Year), Avg.Unhealthy.Days= mean(Unhealthy.Days), Avg.Max.AQI=mean(Max.AQI), Avg.Days.PM2.5=mean(Days.PM2.5))
+Annual_AQI_by_state_2013_2020 <- Annual_AQI_by_county_2013_2020 %>% group_by(Year, State) %>% dplyr::summarise(Year=first(Year), Avg.Unhealthy.Days= mean(Unhealthy.Days), Avg.Max.AQI=mean(Max.AQI), Avg.Days.PM2.5=mean(Days.PM2.5)) %>% arrange(Year, State)
 
-# Saving the new AQI dataset with information at the state level from 2010 to 2020
+# Saving the new AQI dataset with information at the state level from 2013 to 2020
 
-write.csv(Annual_AQI_by_state_2010_2020, file = "./Data/Processed/Annual_AQI_by_state_2010_2020_Processed.csv", row.names=FALSE)
+write.csv(Annual_AQI_by_state_2013_2020, file = "./Data/Processed/Annual_AQI_by_state_2013_2020_Processed.csv", row.names=FALSE)
 
 ```
 
 **2. Inter-state migration datasets**
 
-* The Inter-state migration datasets do not include the variable "Year", so we create it. Then, we save each dataset in the folder Data/Raw. 
-* We create a dataset with information from 2012 to 2020. 
-* According to the dictionary for this dataset, the variable "y2_statefips" and the code "96" refers to the total outflows of migrants for each state in a given year. Therefore, we filtered the previous dataset by that value.
-* We change this variable's name to "FIPS_Code", so later we can merge this dataset with the AQI dataset. 
-* We save the dataset with migration outflows per state for years 2010-2020 in the folder Data/Processed. 
+The State-to-State outflows dataset provides annual information at the State level about the number of people whose reported home address changed in their individual income tax returns from one year to the other. These datasets are available at https://www.irs.gov/statistics/soi-tax-stats-migration-data. The Inter-state migration datasets do not include the variable "Year", so we create it from 2013 to 2020. 
 
+According to the dictionary for this dataset, the variable "y2_statefips" and the code "96" refer to the total outflows of migrants for each state in a given year. Therefore, we filtered the previous dataset by that value. Additionally, we change this variable's name to "FIPS_Code", so later we can merge this dataset with the AQI dataset.
 
 ```{r Migration datasets wrangling, include=FALSE, message=FALSE, warning=FALSE}
 
 # Creating the variable "Year" for each migration dataset
-
-read.csv("./Data/Raw/Outflows_by_state/stateoutflow1112.csv",
-stringsAsFactors = TRUE) %>% mutate(Year=2012) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1112.csv", row.names=FALSE) #2012
 
 read.csv("./Data/Raw/Outflows_by_state/stateoutflow1213.csv",
 stringsAsFactors = TRUE) %>% mutate(Year=2013) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1213.csv", row.names=FALSE) #2013
@@ -134,34 +124,32 @@ stringsAsFactors = TRUE) %>% mutate(Year=2019) %>% write.csv(file = "./Data/Raw/
 read.csv("./Data/Raw/Outflows_by_state/stateoutflow1920.csv",
 stringsAsFactors = TRUE) %>% mutate(Year=2020) %>% write.csv(file = "./Data/Raw/Outflows_by_state/stateoutflow1920.csv", row.names=FALSE) #2020
 
-# Merging the dataset for years 2012 - 2020
+# Merging the dataset for years 2013 - 2020
 
 mydir = "./Data/Raw/Outflows_by_state"
 files = list.files(path = mydir, pattern = "*.csv", full.names = TRUE)
 files
-Mig_outflows_by_state_2012_2020 <- ldply(files, read.csv) 
+Mig_outflows_by_state_2013_2020 <- ldply(files, read.csv) 
 
 # Filtering by the variable "y2_statefips == 96" (total outflows by state)
 
-Mig_outflows_by_state_2012_2020_filtered <- filter(Mig_outflows_by_state_2012_2020, y2_statefips == 96) 
+Mig_outflows_by_state_2013_2020_filtered <- Mig_outflows_by_state_2013_2020 %>% filter(y2_statefips == 96)
+
+Mig_outflows_by_state_2013_2020_filtered.1 <- Mig_outflows_by_state_2013_2020 %>% filter(y2_statefips == 96) %>% subset(select = c(y1_statefips, y2_state, n2, Year))
 
 # Changing the name of the variable with information of the code state
 
-colnames(Mig_outflows_by_state_2012_2020_filtered)[1] = "FIPS_Code" 
+colnames(Mig_outflows_by_state_2013_2020_filtered)[1] = "FIPS_Code" 
 
 #Saving the dataset with migration information 
 
-write.csv(Mig_outflows_by_state_2012_2020_filtered, file = "./Data/Processed/Mig_outflows_by_state_2012_2020_Processed.csv", row.names=FALSE)
+write.csv(Mig_outflows_by_state_2013_2020_filtered, file = "./Data/Processed/Mig_outflows_by_state_2013_2020_Processed.csv", row.names=FALSE)
 
 ```
 
 **3. Scraping the FIPS codes** 
 
-* The AQI Dataset has the names of each State in the US, but it does not have the code, which is the variable we need to merge this data with the migration one. 
-* In the object "the_website" we store the website direction where the FIPS codes are available (https://www.bls.gov/respondents/mwr/electronic-data-interchange/appendix-d-usps-state-abbreviations-and-fips-codes.htm). 
-* We scrape from the website the information for the states and codes, and we create a data frame. 
-* We merge this dataset with the AQI dataset by the variable "State".
-* We save the dataset in the folder Data/Processed.  
+The AQI Dataset has the names of each State in the US, but it does not have the code, which is the variable we need to merge this data with the migration one. We scrape the FIPS codes from the webpage (https://www.bls.gov/respondents/mwr/electronic-data-interchange/appendix-d-usps-state-abbreviations-and-fips-codes.htm) and we create a data frame. Then, we merge this dataset with the AQI dataset by the variable "State".
 
 ```{r Scrapping the FIPS codes, include=FALSE, message=FALSE, warning=FALSE}
 
@@ -181,157 +169,203 @@ df_states_codes <- data.frame("State" = the_states,
 
 #Paste the state code to the air quality dataset 
 
-Annual_AQI_by_state_2010_2020 <- merge(Annual_AQI_by_state_2010_2020, df_states_codes, by='State')
+Annual_AQI_by_state_2013_2020 <- merge(Annual_AQI_by_state_2013_2020, df_states_codes, by='State')
 
 #Save the new dataset
 
-write.csv(Annual_AQI_by_state_2010_2020, file = "./Data/Processed/Annual_AQI_by_state_2010_2020_Processed.csv", row.names=FALSE)
+write.csv(Annual_AQI_by_state_2013_2020, file = "./Data/Processed/Annual_AQI_by_state_2013_2020_Processed.csv", row.names=FALSE)
 
 
 ```
 
 **4. Merging the AQI and Migration datasets**
 
-* We merge and arrange the AQI and the migration datasets by the variables "FIPS_Code" and "Year". The resulting dataset has information from 2012 to 2020.
-* According to the dictionary for the migration dataset, the variable "n2" refers to the number of individuals who migrated to other states. To facilitate the interpretation, we changed the name of the variable to "Migrants.outflows".
-* We create a subset of the previous dataset with the variables of interest: FIPS_Code, Year, State, Avg.Unhealthy.DAys, Avg.Days.AQI, Avg.Days.PM2.5, and Migrants.outflows. 
-* We save the dataset in the folder Data/Processed. This is the dataset that we will use in our analysis. 
+We merge and arrange the AQI and the migration datasets by the variables "FIPS_Code" and "Year". The resulting dataset has information from 2013 to 2020. According to the dictionary for the migration dataset, the variable "n2" refers to the number of individuals who migrated to other states. To facilitate the interpretation, we changed the name of the variable to "Migrants.outflows". We create a subset of the previous dataset with the variables of interest: FIPS_Code, Year, State, Avg.Unhealthy.DAys, Avg.Days.AQI, Avg.Days.PM2.5, and Migrants.outflows. This is the dataset that we will use in our analysis. 
 
 ```{r Merging the AQI and Migration Dataset, include=FALSE, message=FALSE, warning=FALSE}
 
 # Paste air quality and migration data 
 
-AQI_Mig.outflows_by.state_2012_2020 <- merge(Annual_AQI_by_state_2010_2020, Mig_outflows_by_state_2012_2020_filtered, by=c("FIPS_Code","Year"))
+AQI_Mig.outflows_by.state_2013_2020 <- merge(Annual_AQI_by_state_2013_2020, Mig_outflows_by_state_2013_2020_filtered, by=c("FIPS_Code","Year"))
 
 # Arranging the dataset in ascending order
 
-AQI_Mig.outflows_by.state_2012_2020 <- AQI_Mig.outflows_by.state_2012_2020 %>% arrange(Year, FIPS_Code)
+AQI_Mig.outflows_by.state_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% arrange(Year, FIPS_Code)
 
 # Changing the name of the variable with information of the code state
 
-colnames(AQI_Mig.outflows_by.state_2012_2020)[11] = "Migrants.outflows" 
+colnames(AQI_Mig.outflows_by.state_2013_2020)[11] = "Migrants.outflows" 
 
 # Create a subset with the variables of interest for the analysis 
 
-AQI_Mig.outflows_by.state_2012_2020 = subset(AQI_Mig.outflows_by.state_2012_2020, select = -c(y2_statefips, y2_state_name, n1, AGI))
+AQI_Mig.outflows_by.state_2013_2020 = subset(AQI_Mig.outflows_by.state_2013_2020, select = -c(y2_statefips, y2_state_name, n1, AGI))
 
 # Save the final dataset for the analysis 
 
-write.csv(AQI_Mig.outflows_by.state_2012_2020, file = "./Data/Processed/AQI_Mig.outflows_by.state_2012_2020.csv", row.names=FALSE)
+write.csv(AQI_Mig.outflows_by.state_2013_2020, file = "./Data/Processed/AQI_Mig.outflows_by.state_2013_2020.csv", row.names=FALSE)
+
+summary.mig.outflows.dataset.2013 <- AQI_Mig.outflows_by.state_2013_2020 %>% filter(Year==2013) %>% summary()
+
+print(summary.mig.outflows.dataset.2013)
+
+summary.mig.outflows.dataset.2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% filter(Year==2020) %>% summary()
+
+print(summary.mig.outflows.dataset.2020)
 
 ```
+The final dataset has 7 variables: FIPS Code, Year, State, Avg.Unhealthy.Days, Avg.Max.AQI, Avg.Days.PM2.5, and number of migrants. In the table [1](#tab:table1) we can see the characteristics of the dataset for years 2013 and 2020. Each year has information for the 50 states of the USA (we do not include in the analysis the Distric of Columbia, Puerto Rico and the Virgin islands). For 2013, on average each state showed 0.56 days with air quality classified as "unhealthy", the maximum value reach by the AQI was 114.89, the number of days with PM2.5 registered were 116.57, and 135,657 people migrated to a different state. For 2020, on average each state showed 0.90 days with air quality classified as "unhealthy", the maximum value reach by the AQI was 122.81, the number of days with PM2.5 registered were 121.52, and about 138,954 people migrated to a different state.
+
+```{r table1, echo=FALSE, results='asis'}
+cat(' Table: \\label{tab:table2}Summary statistics for the final dataset 2013-2020
+  
+|    Variable       |   Type  |  Obs  |   Min   |  Median  |  Media  |   Max   |
+|------------------ |---------|-------|---------|----------|---------|---------|
+|*Year=2013*        |         |       |         |          |         |         |
+|FIPS Code          |   int   |  50   |         |          |         |         |  
+|State              |   chr   |  50   |         |          |         |         |
+|Avg.Unhealthy.Days |   num   |  50   | 0.00000 | 0.03348  | 0.56471 | 6.13333 |
+|Avg.Max.AQI        |   num   |  50   |  73.00  |  107.22  |  114.89 |  240.85 |
+|Avg.Days.PM2.5     |   num   |  50   |  17.43  |  110.33  |  116.57 |  309.00 |
+|Migrants.outflows  |   num   |  50   |  16540  |  95343   |  135657 |  532619 |
+|*Year=2020*        |         |       |         |          |         |         |
+|FIPS Code          |   int   |  50   |         |          |         |         |  
+|State              |   chr   |  50   |         |          |         |         |
+|Avg.Unhealthy.Days |   num   |  50   | 0.00000 | 0.09762  | 0.90793 | 14.20755|
+|Avg.Max.AQI        |   num   |  50   |  58.75  |  98.25   |  122.81 |  430.35 |
+|Avg.Days.PM2.5     |   num   |  50   |  16.11  |  105.87  |  121.52 |  304.39 |
+|Migrants.outflows  |   num   |  50   |  16378  |  92877   |  138954 |  684935 |')
+
+
+```
+
 \newpage
 
 ## Exploratory Analysis 
 
-**5.Maps AQI by State 2012 and 2020**
-
-```{r AQI by State 2012 and 2020, echo=FALSE, message=FALSE, warning=FALSE}
+```{r AQI by State 2013 and 2020, echo=FALSE, message=FALSE, warning=FALSE}
 
 ################################################
-#   Map Average Unhealthy Days by State 2012   #
+#   Map Average Unhealthy Days by State 2013   #
 ################################################
 
 # Changing the name of the variable "State" to "state", so we can use plot_usmap 
-colnames(AQI_Mig.outflows_by.state_2012_2020)[3] = "state"  
+colnames(AQI_Mig.outflows_by.state_2013_2020)[3] = "state"  
 
-# Dataset for the Map of Average Unhealthy Days by State in 2012
-data.map_unhealthy_days_2012 <- AQI_Mig.outflows_by.state_2012_2020 %>%  filter(Year==2012) %>% subset(select = c(state, Avg.Unhealthy.Days))
+# Dataset for the Map of Average Unhealthy Days by State in 2013
+data.map_unhealthy_days_2013 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2013) %>% subset(select = c(state, Avg.Unhealthy.Days))
 
-# Map of Average Unhealthy Days by State in 2012
-map_unhealthy_days_2012 <- plot_usmap(data = data.map_unhealthy_days_2012, values = "Avg.Unhealthy.Days", labels = TRUE, label_color = "white") + labs(title = "Average Unhealthy Days by State", subtitle = "2012") + 
-scale_fill_continuous(type = "viridis", name = "Average Unhealthy Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+# Map of Average Unhealthy Days by State in 2013
+map_unhealthy_days_2013 <- plot_usmap(data = data.map_unhealthy_days_2013, values = "Avg.Unhealthy.Days", labels = TRUE, label_color = "white") + 
+scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
-map_unhealthy_days_2012$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
-print(map_unhealthy_days_2012)
+map_unhealthy_days_2013$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
+
 
 ################################################
 #   Map Average Unhealthy Days by State 2020   #
 ################################################
 
 # Dataset for the Map of Average Unhealthy Days by State in 2020
-data.map_unhealthy_days_2020 <- AQI_Mig.outflows_by.state_2012_2020 %>%  filter(Year==2020) %>% subset(select = c(state, Avg.Unhealthy.Days))
+data.map_unhealthy_days_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2020) %>% subset(select = c(state, Avg.Unhealthy.Days))
 
 # Map of Average Unhealthy Days by State in 2020
-map_unhealthy_days_2020 <- plot_usmap(data = data.map_unhealthy_days_2020, values = "Avg.Unhealthy.Days", labels = TRUE, label_color = "white") + labs(title = "Average Unhealthy Days by State", subtitle = "2020") + 
-scale_fill_continuous(type = "viridis", name = "Average Unhealthy Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_unhealthy_days_2020 <- plot_usmap(data = data.map_unhealthy_days_2020, values = "Avg.Unhealthy.Days", labels = TRUE, label_color = "white") + 
+scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
-map_unhealthy_days_2020$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
-print(map_unhealthy_days_2020)
+map_unhealthy_days_2020$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
 
 #############################################
-#   Map Average Air Quality by State 2012   #
+#   Map Average Air Quality by State 2013   #
 #############################################
 
-# Dataset for the Map of Avg Max AQI by State in 2012
-data.map_max_AQI_2012 <- AQI_Mig.outflows_by.state_2012_2020 %>%  filter(Year==2012) %>% subset(select = c(state, Avg.Max.AQI))
+# Dataset for the Map of Avg Max AQI by State in 2013
+data.map_max_AQI_2013 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2013) %>% subset(select = c(state, Avg.Max.AQI))
 
-# Map of Average Max AQI by State in 2012
-map_max_AQI_2012 <- plot_usmap(data = data.map_max_AQI_2012, values = "Avg.Max.AQI", labels = TRUE, label_color = "white") + labs(title = "Average Max AQI by State", subtitle = "2012") + scale_fill_continuous(type = "viridis", name = "Average Max AQI") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+# Map of Average Max AQI by State in 2013
+map_max_AQI_2013 <- plot_usmap(data = data.map_max_AQI_2013, values = "Avg.Max.AQI", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "AQI") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
-map_max_AQI_2012$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
-print(map_max_AQI_2012)
+map_max_AQI_2013$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
 
 #############################################
 #   Map Average Air Quality by State 2020   #
 #############################################
 
 # Dataset for the Map of Avg Max AQI by State in 2020
-data.map_max_AQI_2020 <- AQI_Mig.outflows_by.state_2012_2020 %>%  filter(Year==2020) %>% subset(select = c(state, Avg.Max.AQI))
+data.map_max_AQI_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2020) %>% subset(select = c(state, Avg.Max.AQI))
 
 # Map of Average Max AQI by State in 2020
-map_max_AQI_2020 <- plot_usmap(data = data.map_max_AQI_2020, values = "Avg.Max.AQI", labels = TRUE, label_color = "white") + labs(title = "Average Max AQI by State", subtitle = "2020") + scale_fill_continuous(type = "viridis", name = "Average Max AQI") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_max_AQI_2020 <- plot_usmap(data = data.map_max_AQI_2020, values = "Avg.Max.AQI", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "AQI") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
-map_max_AQI_2020$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
-print(map_max_AQI_2020)
+map_max_AQI_2020$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
+
 
 ############################################
-#   Map Average Days PM2.5 by State 2012   #
+#   Map Average Days PM2.5 by State 2013   #
 ############################################
 
-# Dataset for the Map of Avg Days PM2.5 by State in 2012
-data.map_avg_PM2.5_2012 <- AQI_Mig.outflows_by.state_2012_2020 %>%  filter(Year==2012) %>% subset(select = c(state, Avg.Days.PM2.5))
+# Dataset for the Map of Avg Days PM2.5 by State in 2013
+data.map_avg_PM2.5_2013 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2013) %>% subset(select = c(state, Avg.Days.PM2.5))
 
-# Map of Average Days PM2.5 by State in 2012
-map_avg_PM2.5_2012 <- plot_usmap(data = data.map_avg_PM2.5_2012, values = "Avg.Days.PM2.5", labels = TRUE, label_color = "white") + labs(title = "Average Days PM2.5", subtitle = "2012") + scale_fill_continuous(type = "viridis", name = "Average Days PM2.5") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+# Map of Average Days PM2.5 by State in 2013
+map_avg_PM2.5_2013 <- plot_usmap(data = data.map_avg_PM2.5_2013, values = "Avg.Days.PM2.5", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
-map_avg_PM2.5_2012$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
-print(map_avg_PM2.5_2012)
+map_avg_PM2.5_2013$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
 
 ############################################
 #   Map Average Days PM2.5 by State 2020   #
 ############################################
 
 # Dataset for the Map of Avg Days PM2.5 by State in 2020
-data.map_avg_PM2.5_2020 <- AQI_Mig.outflows_by.state_2012_2020 %>%  filter(Year==2020) %>% subset(select = c(state, Avg.Days.PM2.5))
+data.map_avg_PM2.5_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2020) %>% subset(select = c(state, Avg.Days.PM2.5))
 
 # Map of Average Days PM2.5 by State in 2020
-map_avg_PM2.5_2020 <- plot_usmap(data = data.map_avg_PM2.5_2020, values = "Avg.Days.PM2.5", labels = TRUE, label_color = "white") + labs(title = "Average Days PM2.5", subtitle = "2020") + scale_fill_continuous(type = "viridis", name = "Average Days PM2.5") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_avg_PM2.5_2020 <- plot_usmap(data = data.map_avg_PM2.5_2020, values = "Avg.Days.PM2.5", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
-map_avg_PM2.5_2020$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
-print(map_avg_PM2.5_2020)
-
+map_avg_PM2.5_2020$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
 
 ```
 
-**6. Maps migration by State 2012 and 2020**
+### Air Quality Indicators 
+
+```{r fig1, echo=FALSE, fig.cap="Average Unhealthy Days by State 2013"}
+print(map_unhealthy_days_2013)
+```
+
+```{r fig2, echo=FALSE, fig.cap="Average Unhealthy Days by State 2020"}
+print(map_unhealthy_days_2020)
+```
+
+```{r fig3, echo=FALSE, fig.cap="Average Max AQI value by State 2013"}
+print(map_max_AQI_2013)
+```
+
+```{r fig4, echo=FALSE, fig.cap="Average Max AQI value by State 2020"}
+print(map_max_AQI_2020)
+```
+
+```{r fig5, echo=FALSE, fig.cap="Average PM2.5 by State 2013"}
+print(map_avg_PM2.5_2013)
+```
+
+```{r fig6, echo=FALSE, fig.cap="Average PM2.5 by State 2020"}
+print(map_avg_PM2.5_2020)
+```
 
 
-```{r Migration outflows by State 2012 and 2020, echo=FALSE, message=FALSE, warning=FALSE}
+```{r Migration outflows by State 2013 and 2020, echo=FALSE, message=FALSE, warning=FALSE}
 
 ##########################################
-##  Map migrant outflows by State 2012  ##
+##  Map migrant outflows by State 2013  ##
 ##########################################
 
-# Proportion of migrant outflows by State for 2012 (proportion is multiplied by 100, so it is read like a percentage)
+# Proportion of migrant outflows by State for 2013 (proportion is multiplied by 100, so it is read like a percentage)
 
-data.map_migration_by_state_2012 <- AQI_Mig.outflows_by.state_2012_2020  %>% group_by(Year) %>%  dplyr::summarise(Prop.Migrants.outflows=(Migrants.outflows/sum(Migrants.outflows))*100, state=state) %>% filter(Year==2012) #%>% subset(select = c(state, Prop.Migrants.outflows))
+data.map_migration_by_state_2013 <- AQI_Mig.outflows_by.state_2013_2020  %>% group_by(Year) %>%  dplyr::summarise(Prop.Migrants.outflows=(Migrants.outflows/sum(Migrants.outflows))*100, state=state) %>% filter(Year==2013) #%>% subset(select = c(state, Prop.Migrants.outflows))
 
-# Map of Migrants' outflows by State for 2012
-map_migration_by_state_2012 <- plot_usmap(data = data.map_migration_by_state_2012, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + labs(title = "Percentage of migrants' outflows by State", subtitle = "2012") + scale_fill_continuous(type = "viridis", name = "Percentage of migrants' outflows") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+# Map of Migrants' outflows by State for 2013
+map_migration_by_state_2013 <- plot_usmap(data = data.map_migration_by_state_2013, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
-map_migration_by_state_2012$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
-print(map_migration_by_state_2012)
+map_migration_by_state_2013$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
 
 ##########################################
 ##  Map migrant outflows by State 2020  ##
@@ -339,40 +373,50 @@ print(map_migration_by_state_2012)
 
 # Proportion of migrant outflows by State for 2020 (proportion is multiplied by 100, so it is read like a percentage)
 
-data.map_migration_by_state_2020 <- AQI_Mig.outflows_by.state_2012_2020  %>% group_by(Year) %>%  dplyr::summarise(Prop.Migrants.outflows=(Migrants.outflows/sum(Migrants.outflows))*100, state=state) %>% filter(Year==2020) #%>% subset(select = c(state, Prop.Migrants.outflows))
+data.map_migration_by_state_2020 <- AQI_Mig.outflows_by.state_2013_2020  %>% group_by(Year) %>%  dplyr::summarise(Prop.Migrants.outflows=(Migrants.outflows/sum(Migrants.outflows))*100, state=state) %>% filter(Year==2020) #%>% subset(select = c(state, Prop.Migrants.outflows))
 
 # Map of Migrants' outflows by State for 2020
-map_migration_by_state_2020 <- plot_usmap(data = data.map_migration_by_state_2020, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + labs(title = "Percentage of migrants' outflows by State", subtitle = "2020") + scale_fill_continuous(type = "viridis", name = "Percentage of migrants' outflows") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_migration_by_state_2020 <- plot_usmap(data = data.map_migration_by_state_2020, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
 map_migration_by_state_2020$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
-print(map_migration_by_state_2020)
 
 
-# Table for 2012
+# Table for 2013
 
-#table_migration_by_state_2012_2020 %>% group_by(State, Year) %>% dplyr::summarise(min=min(Prop.Migrants.outflows), median=median(Prop.Migrants.outflows), mean=mean(Prop.Migrants.outflows), max=max(Prop.Migrants.outflows)) %>% filter(Year==2012) %>% arrange(desc(mean))
+#table_migration_by_state_2013_2020 %>% group_by(State, Year) %>% dplyr::summarise(min=min(Prop.Migrants.outflows), median=median(Prop.Migrants.outflows), mean=mean(Prop.Migrants.outflows), max=max(Prop.Migrants.outflows)) %>% filter(Year==2013) %>% arrange(desc(mean))
 
 # Table for 2020
 
-#table_migration_by_state_2012_2020 %>% group_by(State, Year) %>% dplyr::summarise(min=min(Prop.Migrants.outflows), median=median(Prop.Migrants.outflows), mean=mean(Prop.Migrants.outflows), max=max(Prop.Migrants.outflows)) %>% filter(Year==2020) %>% arrange(desc(mean))
+#table_migration_by_state_2013_2020 %>% group_by(State, Year) %>% dplyr::summarise(min=min(Prop.Migrants.outflows), median=median(Prop.Migrants.outflows), mean=mean(Prop.Migrants.outflows), max=max(Prop.Migrants.outflows)) %>% filter(Year==2020) %>% arrange(desc(mean))
 
 # Changing the name of the variable "state" to "State", so there is no conflict with the rest of the code
 
-colnames(AQI_Mig.outflows_by.state_2012_2020)[3] = "State" 
-
-# Graph 
-
-#graph_migration_by_state_2012_2020 <- AQI_Mig.outflows_by.state_2012_2020  %>% group_by(Year) %>%  dplyr::summarise(Prop.Migrants.outflows=(Migrants.outflows/sum(Migrants.outflows))*100, Avg.Unhealthy.Days=Avg.Unhealthy.Days, State=State) %>% filter(Year==2020) %>% arrange(desc(Avg.Unhealthy.Days)) %>% ggplot(aes(x=State, y=Prop.Migrants.outflows)) + geom_boxplot() + mytheme 
-
-#graph_migration_by_state_2012_2020
+colnames(AQI_Mig.outflows_by.state_2013_2020)[3] = "State" 
 
 # CKECK Relationship between migration and air quality
 
-migration_AQI_2012_2020 <- AQI_Mig.outflows_by.state_2012_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Unhealthy.Days)) + geom_point(aes(color= Year)) + mytheme + geom_smooth(method = "lm", se = FALSE, color = "black")
+migration_AQI_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Unhealthy.Days)) + geom_point(aes(color= Year)) + mytheme + geom_smooth(method = "lm", se = FALSE, color = "black")
 
-migration_AQI_2012_2020
+#migration_AQI_2013_2020
 
 ```
+
+### Migration outflows by State
+
+```{r fig7, echo=FALSE, fig.cap="Percentage of migrants' outflows by State in 2013"}
+print(map_migration_by_state_2013)
+```
+
+```{r fig8, echo=FALSE, fig.cap=" Percentage of migrants' outflows by State in 2020"}
+print(map_migration_by_state_2013)
+```
+
+### Air Quality and migration outflows 
+
+```{r fig9, echo=FALSE, fig.cap=" Relationship between Avg. Unhealthy Days and Migrantion outflows between 2013 and 2020"}
+print(migration_AQI_2013_2020)
+```
+
 ## Analysis 
 
 **6. Correlations**
@@ -381,11 +425,11 @@ migration_AQI_2012_2020
 ```{r Initial Correlations, echo=FALSE, message=FALSE, warning=FALSE}
 # Initial correlation tests
 
-cor.test(AQI_Mig.outflows_by.state_2012_2020$Avg.Unhealthy.Days, AQI_Mig.outflows_by.state_2012_2020$Migrants.outflows)
+cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Unhealthy.Days, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
 
-cor.test(AQI_Mig.outflows_by.state_2012_2020$Avg.Max.AQI, AQI_Mig.outflows_by.state_2012_2020$Migrants.outflows)
+cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Max.AQI, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
 
-cor.test(AQI_Mig.outflows_by.state_2012_2020$Avg.Days.PM2.5, AQI_Mig.outflows_by.state_2012_2020$Migrants.outflows)
+cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Days.PM2.5, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
 ```
 
 
