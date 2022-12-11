@@ -267,9 +267,9 @@ data.map_unhealthy_days_2013 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(
 
 # Map of Average Unhealthy Days by State in 2013
 map_unhealthy_days_2013 <- plot_usmap(data = data.map_unhealthy_days_2013, values = "Avg.Unhealthy.Days", labels = TRUE, label_color = "white") + 
-scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+scale_fill_continuous(type = "viridis", name = "Days", breaks = c(0, 2, 4, 6, 8, 10, 12), limits = c(0, 14)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5)) + labs(title = "2013")
 
-map_unhealthy_days_2013$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
+map_unhealthy_days_2013$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
 
 
 ################################################
@@ -281,9 +281,9 @@ data.map_unhealthy_days_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(
 
 # Map of Average Unhealthy Days by State in 2020
 map_unhealthy_days_2020 <- plot_usmap(data = data.map_unhealthy_days_2020, values = "Avg.Unhealthy.Days", labels = TRUE, label_color = "white") + 
-scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+scale_fill_continuous(type = "viridis", name = "Days", breaks = c(0, 2, 4, 6, 8, 10, 12)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))  + labs(title = "2020")
 
-map_unhealthy_days_2020$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
+map_unhealthy_days_2020$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
 
 #############################################
 #   Map Average Air Quality by State 2013   #
@@ -293,9 +293,9 @@ map_unhealthy_days_2020$layers[[2]]$aes_params$size <- 2 #Change the size of the
 data.map_max_AQI_2013 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2013) %>% subset(select = c(state, Avg.Max.AQI))
 
 # Map of Average Max AQI by State in 2013
-map_max_AQI_2013 <- plot_usmap(data = data.map_max_AQI_2013, values = "Avg.Max.AQI", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "AQI") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_max_AQI_2013 <- plot_usmap(data = data.map_max_AQI_2013, values = "Avg.Max.AQI", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "AQI", breaks = c(100, 200, 300, 400), limits = c(0, 500)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))  + labs(title = "2013")
 
-map_max_AQI_2013$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
+map_max_AQI_2013$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
 
 #############################################
 #   Map Average Air Quality by State 2020   #
@@ -305,9 +305,9 @@ map_max_AQI_2013$layers[[2]]$aes_params$size <- 2 #Change the size of the labels
 data.map_max_AQI_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2020) %>% subset(select = c(state, Avg.Max.AQI))
 
 # Map of Average Max AQI by State in 2020
-map_max_AQI_2020 <- plot_usmap(data = data.map_max_AQI_2020, values = "Avg.Max.AQI", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "AQI") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_max_AQI_2020 <- plot_usmap(data = data.map_max_AQI_2020, values = "Avg.Max.AQI", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "AQI", breaks = c(100, 200, 300, 400), limits = c(0, 500)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))  + labs(title = "2020")
 
-map_max_AQI_2020$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
+map_max_AQI_2020$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
 
 
 ############################################
@@ -318,9 +318,9 @@ map_max_AQI_2020$layers[[2]]$aes_params$size <- 2 #Change the size of the labels
 data.map_avg_PM2.5_2013 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2013) %>% subset(select = c(state, Avg.Days.PM2.5))
 
 # Map of Average Days PM2.5 by State in 2013
-map_avg_PM2.5_2013 <- plot_usmap(data = data.map_avg_PM2.5_2013, values = "Avg.Days.PM2.5", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_avg_PM2.5_2013 <- plot_usmap(data = data.map_avg_PM2.5_2013, values = "Avg.Days.PM2.5", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))  + labs(title = "2013")
 
-map_avg_PM2.5_2013$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
+map_avg_PM2.5_2013$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
 
 ############################################
 #   Map Average Days PM2.5 by State 2020   #
@@ -330,9 +330,9 @@ map_avg_PM2.5_2013$layers[[2]]$aes_params$size <- 2 #Change the size of the labe
 data.map_avg_PM2.5_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>%  filter(Year==2020) %>% subset(select = c(state, Avg.Days.PM2.5))
 
 # Map of Average Days PM2.5 by State in 2020
-map_avg_PM2.5_2020 <- plot_usmap(data = data.map_avg_PM2.5_2020, values = "Avg.Days.PM2.5", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_avg_PM2.5_2020 <- plot_usmap(data = data.map_avg_PM2.5_2020, values = "Avg.Days.PM2.5", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Days") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))  + labs(title = "2020")
 
-map_avg_PM2.5_2020$layers[[2]]$aes_params$size <- 2 #Change the size of the labels on the map
+map_avg_PM2.5_2020$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
 
 ```
 
@@ -346,19 +346,20 @@ plot_grid(plot.Avg.Unhealthy.Days.2013.2020, plot.Avg.Max.AQI.2013.2020, plot.Av
 ```
 
 
+
 ```{r fig2, echo=FALSE, fig.cap="Average Unhealthy Days by State 2013 and 2020"}
-plot_grid(map_unhealthy_days_2013, map_unhealthy_days_2020)
+plot_grid(map_unhealthy_days_2013, map_unhealthy_days_2020, nrow = 2)
 ```
 
 
 ```{r fig3, echo=FALSE, fig.cap="Average Max AQI value by State 2013 and 2020"}
-plot_grid(map_max_AQI_2013, map_max_AQI_2020)
+plot_grid(map_max_AQI_2013, map_max_AQI_2020, nrow = 2)
 
 ```
 
 
 ```{r fig4, echo=FALSE, fig.cap="Average PM2.5 by State 2013 and 2020"}
-plot_grid(map_avg_PM2.5_2013, map_avg_PM2.5_2020)
+plot_grid(map_avg_PM2.5_2013, map_avg_PM2.5_2020, nrow = 2)
 
 ```
 
@@ -375,9 +376,9 @@ It is important to mention that the state averages do not allow to understand wh
 data.map_migration_by_state_2013 <- AQI_Mig.outflows_by.state_2013_2020  %>% group_by(Year) %>%  dplyr::summarise(Prop.Migrants.outflows=(Migrants.outflows/sum(Migrants.outflows))*100, state=state) %>% filter(Year==2013) #%>% subset(select = c(state, Prop.Migrants.outflows))
 
 # Map of Migrants' outflows by State for 2013
-map_migration_by_state_2013 <- plot_usmap(data = data.map_migration_by_state_2013, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_migration_by_state_2013 <- plot_usmap(data = data.map_migration_by_state_2013, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage", breaks = c(2, 4, 6, 8), limits = c(0, 10)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
-map_migration_by_state_2013$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
+map_migration_by_state_2013$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
 
 ##########################################
 ##  Map migrant outflows by State 2020  ##
@@ -388,9 +389,9 @@ map_migration_by_state_2013$layers[[2]]$aes_params$size <- 2.5 #Change the size 
 data.map_migration_by_state_2020 <- AQI_Mig.outflows_by.state_2013_2020  %>% group_by(Year) %>%  dplyr::summarise(Prop.Migrants.outflows=(Migrants.outflows/sum(Migrants.outflows))*100, state=state) %>% filter(Year==2020) #%>% subset(select = c(state, Prop.Migrants.outflows))
 
 # Map of Migrants' outflows by State for 2020
-map_migration_by_state_2020 <- plot_usmap(data = data.map_migration_by_state_2020, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage") + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_migration_by_state_2020 <- plot_usmap(data = data.map_migration_by_state_2020, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage", breaks = c(2, 4, 6, 8), limits = c(0, 10)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
 
-map_migration_by_state_2020$layers[[2]]$aes_params$size <- 2.5 #Change the size of the labels on the map
+map_migration_by_state_2020$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
 
 
 # Table for 2013
@@ -405,41 +406,58 @@ map_migration_by_state_2020$layers[[2]]$aes_params$size <- 2.5 #Change the size 
 
 colnames(AQI_Mig.outflows_by.state_2013_2020)[3] = "State" 
 
-# CKECK Relationship between migration and air quality
+# Plot of the relationship between migration and unhealthy days 
 
-migration_AQI_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Unhealthy.Days)) + geom_point(aes(color= Year)) + mytheme + geom_smooth(method = "lm", se = FALSE, color = "black")
+migration_unhealthy_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Unhealthy.Days)) + geom_point() + mytheme + geom_smooth(method = "lm", se = FALSE, color = "black")
 
-#migration_AQI_2013_2020
+# Plot of the relationship between migration and max AQI
+
+migration_AQI_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Max.AQI)) + geom_point() + mytheme + geom_smooth(method = "lm", se = FALSE, color = "black")
+
+# Plot of the relationship between migration and days PM2.5
+
+migration_PM2.5_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Days.PM2.5)) + geom_point() + mytheme + geom_smooth(method = "lm", se = FALSE, color = "black")
 
 ```
 
 ### Migration outflows by State
 
 ```{r fig5, echo=FALSE, fig.cap="Percentage of migrants' outflows by State in 2013 and 2020"}
-plot_grid(map_migration_by_state_2013, map_migration_by_state_2020)
+
+plot_grid(map_migration_by_state_2013, map_migration_by_state_2020, nrow = 2)
 
 ```
 
 
 ### Air Quality and migration outflows 
 
-```{r fig9, echo=FALSE, fig.cap=" Relationship between Avg. Unhealthy Days and Migrantion outflows between 2013 and 2020"}
-print(migration_AQI_2013_2020)
+```{r fig9, echo=FALSE, fig.cap=" Relationship between air quality indicators and migrantion outflows between 2013 and 2020"}
+
+plot_grid(migration_unhealthy_2013_2020, migration_AQI_2013_2020, migration_PM2.5_2013_2020)
 ```
 
 ## Analysis 
 
 **6. Correlations**
 
-
 ```{r Initial Correlations, echo=FALSE, message=FALSE, warning=FALSE}
 # Initial correlation tests
 
-cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Unhealthy.Days, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
+cor.unhealthy.days.migrants <- cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Unhealthy.Days, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
 
-cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Max.AQI, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
+cor.AQI.days.migrants <- cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Max.AQI, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
 
-cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Days.PM2.5, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
+cor.PM2.5.days.migrants <- cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Days.PM2.5, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
 ```
 
+```{r table2, echo=FALSE, results='asis'}
+cat(' Table: \\label{tab:table2}Correlation between air quality indicators and migration outflows 2013-2020
+                                                                |  Confidence Interval  |
+                                                                |         95%           |
+|Correlations        | Migrants Outflows  |    t    | p-value   |   Min     |  Max      |
+|------------------- |--------------------|---------|-----------|-----------|-----------|
+|Avg. unhealthy days |      0.2921202     |  6.0936 | 2.609e-09 | 0.1997911 | 0.3793075 |
+|Avg. maximum AQI    |      0.2586106     |  5.341  | 1.558e-07 | 0.1647361 | 0.3478420 | |Avg. days PM2.5     |     -0.02109288    | -0.4209 |   0.6741  | -0.118899 | 0.07711834|')
 
+
+```
