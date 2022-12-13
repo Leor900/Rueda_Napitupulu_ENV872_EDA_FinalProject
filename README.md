@@ -54,7 +54,8 @@ The folder "Data" contains the raw and processed datasets, as well as the dictio
 - "Raw": contains 2 sub-sub-folders:
     - "Annual_aqi_by_county": contains 8 datasets in CSV format with annual information about air quality per county. 
     - "Outflows_by_state": contains 8 datasets in CSV format with annual information about migration outflows per state.
-    ## Metadata
+ 
+## Metadata
 
 The variables in each of the files inside the folder "Data"/"Raw"/"Annual_aqi_by_county" are:
 
