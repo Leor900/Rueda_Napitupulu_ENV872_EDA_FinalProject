@@ -13,18 +13,20 @@ header-includes:
 - \usepackage[switch, pagewise, running]{lineno}
 - \renewcommand\linenumberfont{\normalfont\small}
 - \usepackage{rotating}
-- \usepackage{float}
+- \usepackage{floatrow}
+- \floatsetup[figure]{capposition=top}
 abstract: |-
- \singlespacing This is my dream abstract. 
- **Keywords: Air Pollution, Migration.**
+ \singlespacing This paper does a descriptive analysis of the relationship between air quality and inter-state migration outflows in the United States for the period between 2013 and 2020. Using the Air Quality Databases provided by EPA and the Taxpayer’s registries with information about their current and one year before residence location provided by the IRS, we found a positive relationship between the average of days with unhealthy air quality per State and the number of people moving out each state, and between the average of the maximum values registered by the Air Quality Index (AQI) and the number of out-migrants, but we do not find a clear relationship with the number of days with PM2.5 detected in the air. After applying a Pearson’s correlation test, we find that the relation in the first two cases is indeed positive and statistically significant, while in the latter, the correlation is not statistically significant. Finally, with a regression analysis, controlling for year and State effects, we found that the only variable with a statistically significant influence in migration is the average number of days with air quality considered unhealthy. Nonetheless, we find a positive relation between air quality and migration, our analysis does not allow us to identify the direction of the effect.   
+ **Keywords: Air Pollution, Migration Outflows, Pearson's Correlation Test, Regression Analysis.**
 geometry: margin=2.54cm
 editor_options: null
 chunk_output_type: console
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(tidy.opts=list(width.cutoff=70), tidy=TRUE)
-knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.height=5, fig.width=5)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.height=5, fig.width=5, fig.align = 'center', fig.topcaption = TRUE)
 knitr::opts_knit$set(root.dir = "C:/Users/leor9/OneDrive/Leonardo/MIDP Courses Fall 2022/R Class/Project/Rueda_Napitupulu_ENV872_EDA_FinalProject")
+knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 
 ```
 \newpage
@@ -39,9 +41,9 @@ knitr::opts_knit$set(root.dir = "C:/Users/leor9/OneDrive/Leonardo/MIDP Courses F
 
 This project looks at the effects of air pollution on inter-state migration in the United States using the Air Quality Index datasets from EPA and the Population Migration data from the IRS for the period 2013-2020. 
 
-Evidence from middle-income countries shows that air pollution has negative impacts on several health and economic outcomes, such as mortality rates, health expenditures, mental health, hours worked, labor productivity and income.  Additionally, other studies have shown how migration decisions are affected by air pollution. For instance, Chen, S., Oliva, P., & Zhang, P. (2022) found that a 10 percent increase in air pollution, holding everything else constant, reduces population through net outmigration by about 2.8 percent in a given county in China (see Chen, S., Oliva, P., & Zhang, P. (2022). The effect of air pollution on migration: Evidence from China. Journal of Development Economics, 156, 102833. https://doi.org/10.1016/j.jdeveco.2022.102833) 
+Evidence from middle-income countries shows that air pollution has negative impacts on several health and economic outcomes, such as mortality rates, health expenditures, mental health, hours worked, labor productivity and income. Additionally, other studies have shown how air pollution determines migration decisions. For instance, Chen, S., Oliva, P., & Zhang, P. (2022) found that a 10 percent increase in air pollution, holding everything else constant, reduces population through net outmigration by about 2.8 percent in certain counties in China (see Chen, S., Oliva, P., & Zhang, P. (2022). The effect of air pollution on migration: Evidence from China. Journal of Development Economics, 156, 102833. https://doi.org/10.1016/j.jdeveco.2022.102833). 
 
-Our hypothesis is that there is a positive relationship between high air pollution and migration outflows, that is, the highest the pollution registered by the Air Quality Index (AQI) in a state in a given year, the higher the number of people leaving that state the same year. 
+Our hypothesis is that there is a positive relationship between high air pollution and migration outflows, that is, the highest the pollution registered by the Air Quality Index (AQI) in a state in a year, the higher the number of people leaving that state the same year.  
 
 ```{r Getting the working directory and loading packages, include=FALSE, message=FALSE, warning=FALSE}
 
@@ -57,19 +59,20 @@ library('usmap')
 library('viridis')
 library('scales')
 library('cowplot')
+library('corrplot')
 
 mytheme <- theme_classic() + theme(axis.text = element_text(color = "black", angle = 90, size = 7), legend.position = "top", plot.title = element_text(hjust = 0.5, face = "bold", size = 7), axis.title = element_text(size = 7))
 
 theme_set(mytheme)
 
 ```
-\newpage
 
 ## Dataset Information
 
 **1. Air Quality Datasets**
 
-The Air Quality Index dataset provides annual information per county about the maximum values reached by the AQI, the number of days in which this index reached values considered unhealthy, and the number of days with PM2.5 particles recorded. The information is capture by the EPA local air quality stations. These datasets are available at https://aqs.epa.gov/aqsweb/airdata/download_files.html. We create a dataset with the information from 2013 to 2020 and aggregate the information at the state level. Likewise, we calculate the state averages for the variables Unhealthy.Days, Max.AQI, and Days.PM2.5.
+The Air Quality Index (AQI) dataset provides annual information per county about the maximum values reached by the AQI, the number of days in which this index reached values considered unhealthy, and the number of days with PM2.5 particles recorded. The EPA local air quality stations capture the information. These datasets are available at https://aqs.epa.gov/aqsweb/airdata/download_files.html. We create a dataset with the information from 2013 to 2020 and aggregate the information at the state level. Likewise, we calculate the state averages for each variable.
+
 
 ```{r AQI datasets wrangling, include=FALSE, message=FALSE, warning=FALSE}
 
@@ -94,7 +97,7 @@ write.csv(Annual_AQI_by_state_2013_2020, file = "./Data/Processed/Annual_AQI_by_
 
 The State-to-State outflows dataset provides annual information at the State level about the number of people whose reported home address changed in their individual income tax returns from one year to the other. These datasets are available at https://www.irs.gov/statistics/soi-tax-stats-migration-data. The Inter-state migration datasets do not include the variable "Year", so we create it from 2013 to 2020. 
 
-According to the dictionary for this dataset, the variable "y2_statefips" and the code "96" refer to the total outflows of migrants for each state in a given year. Therefore, we filtered the previous dataset by that value. Additionally, we change this variable's name to "FIPS_Code", so later we can merge this dataset with the AQI dataset.
+According to the dictionary for this dataset, the variable "y2_statefips" and the code "96" refer to the total outflows of migrants for each state each year. Therefore, we filtered the dataset by that value. Additionally, we change this variable's name to "FIPS_Code", so later we can merge this dataset with the AQI dataset.
 
 ```{r Migration datasets wrangling, include=FALSE, message=FALSE, warning=FALSE}
 
@@ -180,7 +183,7 @@ write.csv(Annual_AQI_by_state_2013_2020, file = "./Data/Processed/Annual_AQI_by_
 
 **4. Merging the AQI and Migration datasets**
 
-We merge and arrange the AQI and the migration datasets by the variables "FIPS_Code" and "Year". The resulting dataset has information from 2013 to 2020. According to the dictionary for the migration dataset, the variable "n2" refers to the number of individuals who migrated to other states. To facilitate the interpretation, we changed the name of the variable to "Migrants.outflows". We create a subset of the previous dataset with the variables of interest: FIPS_Code, Year, State, Avg.Unhealthy.DAys, Avg.Days.AQI, Avg.Days.PM2.5, and Migrants.outflows. This is the dataset that we will use in our analysis. 
+We merge and arrange in descending order the AQI and the migration datasets by the variables "FIPS_Code" and "Year". The resulting dataset has information from 2013 to 2020. According to the dictionary for the migration dataset, the variable "n2" refers to the number of individuals who migrated to other states. To facilitate the interpretation, we changed the name of the variable to "Migrants.outflows". We create a subset of the previous dataset with the variables of interest: FIPS_Code, Year, State, Avg.Unhealthy.DAys, Avg.Days.AQI, Avg.Days.PM2.5, and Migrants.outflows. This is the dataset that we will use in our analysis. 
 
 ```{r Merging the AQI and Migration Dataset, include=FALSE, message=FALSE, warning=FALSE}
 
@@ -213,10 +216,11 @@ summary.mig.outflows.dataset.2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% fil
 print(summary.mig.outflows.dataset.2020)
 
 ```
-The final dataset has 7 variables: FIPS Code, Year, State, Avg.Unhealthy.Days, Avg.Max.AQI, Avg.Days.PM2.5, and number of migrants. In the table [1](#tab:table1) we can see the characteristics of the dataset for years 2013 and 2020. Each year has information for the 50 states of the USA (we do not include in the analysis the Distric of Columbia, Puerto Rico and the Virgin islands). For 2013, on average each state showed 0.56 days with air quality classified as "unhealthy", the maximum value reach by the AQI was 114.89, the number of days with PM2.5 registered were 116.57, and 135,657 people migrated to a different state. For 2020, on average each state showed 0.90 days with air quality classified as "unhealthy", the maximum value reach by the AQI was 122.81, the number of days with PM2.5 registered were 121.52, and about 138,954 people migrated to a different state.
+The final dataset has seven variables: FIPS Code, Year, State, Avg.Unhealthy.Days, Avg.Max.AQI, Avg.Days.PM2.5, and number of migrants. In table [1](#tab:table1) we can see the characteristics of the dataset for years 2013 and 2020. Each year has information for the fifty states of the USA (we do not include in the analysis the District of Columbia, Puerto Rico and the Virgin Islands). For 2013, on average each state showed 0.56 days with air quality classified as "unhealthy", the maximum value reached by the AQI was 114.89, the number of days with PM2.5 registered were 116.57, and 135,657 people migrated to a different state. For 2020, on average each state showed 0.90 days with air quality classified as "unhealthy", the maximum value reach by the AQI was 122.81, the number of days with PM2.5 registered were 121.52, and about 138,954 people migrated to a different state.
+\newpage
 
 ```{r table1, echo=FALSE, results='asis'}
-cat(' Table: \\label{tab:table2}Summary statistics for the final dataset 2013-2020
+cat(' Table: \\label{tab:table1}Summary statistics for the final dataset 2013-2020
   
 |    Variable       |   Type  |  Obs  |   Min   |  Median  |  Media  |   Max   |
 |------------------ |---------|-------|---------|----------|---------|---------|
@@ -237,9 +241,6 @@ cat(' Table: \\label{tab:table2}Summary statistics for the final dataset 2013-20
 
 
 ```
-
-\newpage
-
 ## Exploratory Analysis 
 
 ```{r AQI by State 2013 and 2020, echo=FALSE, message=FALSE, warning=FALSE}
@@ -336,34 +337,41 @@ map_avg_PM2.5_2020$layers[[2]]$aes_params$size <- 1.5 #Change the size of the la
 
 ```
 
-### Air Quality Indicators 
+### Air Quality Indicators between 2013 and 2020
 
-In the figure [1](#fig:fig1) we can see some descriptive statistics for the air quality indicators between 2013 and 2020. At the top left, the average unhealthy days registered in all states and for all years show no days with unhealthy air quality. However, between 2013 and 2016 some states registered on average 2 days, and between 2018 and 2020 this registries dropped to 1 day. At the top right, the average maximum AQI registered for all states reached numbers close to 100, which means that the air quality is acceptable. At the same time, in some years this indicator reached numbers above between 150 and 200, meaning that the air quality was poor and people could experience negative health effects. Finally, at the bottom left the average number of days when PM2.5 were detected reached 100 during the period of time analyzed. This result is worrisome because a long exposure to these particles is harmful to human health. This indicator shows a high dispersion, with some states showing less than 50 days, while others show more than 150 days. It is important to mention that the analysis of averages by state per year allows to have an initial picture of the air quality in each year, but does not allow to identify the air quality by state. In the following analysis, some maps allows to see this. 
+In figure [1](#fig:fig1) we can see some descriptive statistics for the air quality indicators between 2013 and 2020. The graph at the top left, the average unhealthy days registered in all states and for all years, shows no days with unhealthy air quality. However, between 2013 and 2016, some states registered on average of two days, and between 2018 and 2020, these registries dropped to one day. In the graph at the top right, the average maximum AQI registered for all states reached numbers close to one hundred, which means that the air quality is acceptable. At the same time, in some years this indicator reached numbers above between 150 and 200, meaning that the air quality was poor, and people could experience negative health effects. Finally, the graph at the bottom left shows the average number of days when PM2.5 were detected, which reached one hundred during the period analyzed. This result is worrisome because prolonged exposure to these particles harms human health. This indicator shows a high dispersion, with some states showing less than 50 days, while others show more than 150 days. It is important to mention that the analysis of averages by state per year allows having an initial picture of the air quality in each year but does not allow to identify the air quality by state. In the following analysis, some maps allow to see this. 
 
-```{r fig1, echo=FALSE, fig.cap="Air Quality Indicators 2013-2020"}
+```{r fig1, echo=FALSE, fig.cap="Air Quality Indicators 2013-2020", fig.topcaption = TRUE}
 plot_grid(plot.Avg.Unhealthy.Days.2013.2020, plot.Avg.Max.AQI.2013.2020, plot.Avg.Days.PM2.5.2013.2020)
 
 ```
 
+### Average Unhealthy Days by State between 2013 and 2020
 
+Figure [2](#fig:fig2) shows how the indicator "average unhealthy days" developed between 2013 and 2020 by State. During 2013, most states had an average unhealthy days indicator close to zero, except states close to the west coast such as Utah (6.13), California (5.0), Alaska (3.62), Nevada (2.60), Oregon (1.91), Connecticut (1.87), Arizona (1.84) and Idaho (1.53). In 2020, the picture is similar, but the average number of unhealthy days worsens in the states on the west coast. In particular, California and Arizona more than double their average unhealthy days indicator (14.2 and 5.84, respectively), while Nevada (4.11), Oregon (3.95) and Idaho (3.40) also worsen their registries. Further, Washington and Montana show significantly higher numbers compared to 2013 (3.54 and 2.26, respectively). On the other hand, Connecticut and Utah significantly reduced their average unhealthy days indicator (0.50 and 0.53 respectively).    
 
 ```{r fig2, echo=FALSE, fig.cap="Average Unhealthy Days by State 2013 and 2020"}
 plot_grid(map_unhealthy_days_2013, map_unhealthy_days_2020, nrow = 2)
 ```
 
+### Average Maximum AQI Values by State between 2013 and 2020
+
+Figure [3](#fig:fig3) shows the evolution of the indicator "average maximum AQI value" between 2013 and 2020 by State. In 2013, only 34 percent of states show an average maximum AQI value below one hundred, which, according to EPA, ranges between good and moderate air quality and most people can enjoy outdoor activities (except unusually sensitive people). The remaining 66 percent states show numbers above 100, which means that the air quality is unhealthy for sensitive groups (people with heart or lung decrease, for instance) and among them, six states show numbers above 150 which represents a health threat for everyone. Those states were Arizona (240), California (219), Nevada (209), Colorado (164), Connecticut (156) and Rhode Island (154). In 2020, 54 percent of states presented Average Maximum AQI values below one hundred, which means that a little over half of states improved their registries. On the contrary, seven states reached numbers significantly higher and in a couple of cases hazardous for everyone. Those states were Oregon (430), Washington (340), California (287), Arizona (238), Idaho (209), Nevada (202) and Wyoming (193).  
 
 ```{r fig3, echo=FALSE, fig.cap="Average Max AQI value by State 2013 and 2020"}
 plot_grid(map_max_AQI_2013, map_max_AQI_2020, nrow = 2)
 
 ```
+### Average Days with PM2.5 by State between 2013 and 2020
 
+Figure [4](#fig:fig4) shows the indicator "average days with PM2.5 registered" between 2013 and 2020 by State. For 2013, 36 percent of the states spent on average at least one quarter during that year with this type of particle registered in the air, while 60 percent spent at least two quarters. Three states spent a little over three-quarters with this type of particles registered in the air, specifically Hawaii (309), Washington (299) and Oregon (294). In 2020, 32 percent of states spent less than two quarters with this type of particles registered in the air, while the same 60 percent spent at least two quarters. However, five states spent over two and sometimes three quarters with this type of particles detected in the air. These states were Oregon (304), Washington (291), Idaho (209), Hawaii (262) and Tennessee (183).  
 
 ```{r fig4, echo=FALSE, fig.cap="Average PM2.5 by State 2013 and 2020"}
 plot_grid(map_avg_PM2.5_2013, map_avg_PM2.5_2020, nrow = 2)
 
 ```
 
-It is important to mention that the state averages do not allow to understand what is the distribution per county. It could be the case that air quality registries in one county over influences the average for the entire state, or at the other extreme, it could be the case that the air quality is equally distributed in each state.
+It is important to mention that these results should be interpreted with caution because the state averages do not allow us to understand what the distribution per county inside each state is. It could be the case that air quality registries in one county over influence the average for the entire state, or at the other extreme, maybe the air quality is equally distributed in each state.
 
 ```{r Migration outflows by State 2013 and 2020, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -376,7 +384,7 @@ It is important to mention that the state averages do not allow to understand wh
 data.map_migration_by_state_2013 <- AQI_Mig.outflows_by.state_2013_2020  %>% group_by(Year) %>%  dplyr::summarise(Prop.Migrants.outflows=(Migrants.outflows/sum(Migrants.outflows))*100, state=state) %>% filter(Year==2013) #%>% subset(select = c(state, Prop.Migrants.outflows))
 
 # Map of Migrants' outflows by State for 2013
-map_migration_by_state_2013 <- plot_usmap(data = data.map_migration_by_state_2013, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage", breaks = c(2, 4, 6, 8), limits = c(0, 10)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_migration_by_state_2013 <- plot_usmap(data = data.map_migration_by_state_2013, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage", breaks = c(2, 4, 6, 8), limits = c(0, 10)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5)) + labs(title = "2013")
 
 map_migration_by_state_2013$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
 
@@ -389,18 +397,9 @@ map_migration_by_state_2013$layers[[2]]$aes_params$size <- 1.5 #Change the size 
 data.map_migration_by_state_2020 <- AQI_Mig.outflows_by.state_2013_2020  %>% group_by(Year) %>%  dplyr::summarise(Prop.Migrants.outflows=(Migrants.outflows/sum(Migrants.outflows))*100, state=state) %>% filter(Year==2020) #%>% subset(select = c(state, Prop.Migrants.outflows))
 
 # Map of Migrants' outflows by State for 2020
-map_migration_by_state_2020 <- plot_usmap(data = data.map_migration_by_state_2020, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage", breaks = c(2, 4, 6, 8), limits = c(0, 10)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5))
+map_migration_by_state_2020 <- plot_usmap(data = data.map_migration_by_state_2020, values = "Prop.Migrants.outflows", labels = TRUE, label_color = "white") + scale_fill_continuous(type = "viridis", name = "Percentage", breaks = c(2, 4, 6, 8), limits = c(0, 10)) + theme(legend.position = "right", plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5)) + labs(title = "2020")
 
 map_migration_by_state_2020$layers[[2]]$aes_params$size <- 1.5 #Change the size of the labels on the map
-
-
-# Table for 2013
-
-#table_migration_by_state_2013_2020 %>% group_by(State, Year) %>% dplyr::summarise(min=min(Prop.Migrants.outflows), median=median(Prop.Migrants.outflows), mean=mean(Prop.Migrants.outflows), max=max(Prop.Migrants.outflows)) %>% filter(Year==2013) %>% arrange(desc(mean))
-
-# Table for 2020
-
-#table_migration_by_state_2013_2020 %>% group_by(State, Year) %>% dplyr::summarise(min=min(Prop.Migrants.outflows), median=median(Prop.Migrants.outflows), mean=mean(Prop.Migrants.outflows), max=max(Prop.Migrants.outflows)) %>% filter(Year==2020) %>% arrange(desc(mean))
 
 # Changing the name of the variable "state" to "State", so there is no conflict with the rest of the code
 
@@ -408,19 +407,22 @@ colnames(AQI_Mig.outflows_by.state_2013_2020)[3] = "State"
 
 # Plot of the relationship between migration and unhealthy days 
 
-migration_unhealthy_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Unhealthy.Days)) + geom_point() + mytheme + geom_smooth(method = "lm", se = FALSE, color = "black")
+migration_unhealthy_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Unhealthy.Days)) + geom_point() + xlab("Migration Outflows") + ylab("Days") + labs(title = "Average unhealthy days and Migration Outflows") +  mytheme + geom_smooth(method = "lm", se = FALSE, color = "blue") + scale_x_continuous(breaks = seq(0, 800000, 100000), labels = comma)
 
 # Plot of the relationship between migration and max AQI
 
-migration_AQI_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Max.AQI)) + geom_point() + mytheme + geom_smooth(method = "lm", se = FALSE, color = "black")
+migration_AQI_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Max.AQI)) + geom_point() + xlab("Migration Outflows") + ylab("AQI") + labs(title = "Average maximum AQI and Migration Outflows") + mytheme + geom_smooth(method = "lm", se = FALSE, color = "blue") + scale_x_continuous(breaks = seq(0, 800000, 100000), labels = comma)
 
 # Plot of the relationship between migration and days PM2.5
 
-migration_PM2.5_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Days.PM2.5)) + geom_point() + mytheme + geom_smooth(method = "lm", se = FALSE, color = "black")
+migration_PM2.5_2013_2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% ggplot(aes(x=Migrants.outflows, y=Avg.Days.PM2.5)) + geom_point() + xlab("Migration Outflows") + ylab("Days") + labs(title = "Average PM2.5 days and Migration Outflows") + mytheme + geom_smooth(method = "lm", se = FALSE, color = "blue") + scale_x_continuous(breaks = seq(0, 800000, 100000), labels = comma)
 
 ```
 
-### Migration outflows by State
+### Migration outflows by State between 2013 and 2020
+
+
+Figure [5](#fig:fig5) shows the proportion of migrants leaving each State in 2013 and 2020. During the first year, eleven States explained 52 percent of the migration outflows. Those States were California (7.85%), Florida (7.54%), Texas (6.52%), New York (5.69%), Georgia (4.07%), Illinois (3.82%), Virginia (3.80%), North Carolina (3.67%), Pennsylvania (3.16%), New Jersey (2.91%) and Arizona (2.73%). During 2020, most of the same States explain the migration outflows with some minor changes. In specific, California explains 9.85% of all migration outflows, followed by New York (6.90%), Florida (6.70%), Texas (6.29%), Illinois (3.94%), Virginia (3.76%), Georgia (3.45%), North Carolina (3.41%), Pennsylvania (3.07%), and New Jersey (3.01%). 
 
 ```{r fig5, echo=FALSE, fig.cap="Percentage of migrants' outflows by State in 2013 and 2020"}
 
@@ -428,17 +430,20 @@ plot_grid(map_migration_by_state_2013, map_migration_by_state_2020, nrow = 2)
 
 ```
 
+## Analysis 
 
 ### Air Quality and migration outflows 
 
-```{r fig9, echo=FALSE, fig.cap=" Relationship between air quality indicators and migrantion outflows between 2013 and 2020"}
+In figure [6](#fig:fig6) we can see the relationship between each of the air quality indicators and the migration outflows for the seven years studied. The top left graph shows a positive relationship between the average unhealthy days and the number of people out-migrating from a particular state: the larger the number of days considered unhealthy, the larger the number of people moving out to another state. The figure at the top right also shows a positive relationship between the average maximum AQI value and migration outflows: the larger the AQI maximum values reached in each state, the higher the number of more people leaving that state. Finally, at the bottom left, the figure does not show a clear relationship between the average PM2.5 days and migration outflows (at first sight it seems to be negative, but it is difficult to tell).    
+
+```{r fig6, echo=FALSE, fig.cap=" Relationship between air quality indicators and migrantion outflows between 2013 and 2020"}
 
 plot_grid(migration_unhealthy_2013_2020, migration_AQI_2013_2020, migration_PM2.5_2013_2020)
 ```
 
-## Analysis 
+### Correlations
 
-**6. Correlations**
+To confirm the type of statistical relationship between the air quality indicators and the migration outflows, we run some Pearson's correlation tests for these variables. Table [2](#tab:table2) confirms that the correlation between average unhealthy days and migration outflows per State is positive ($\rho$ = 0.29) and statistically significant (p-value = 2.609e-09). Likewise, the average maximum AQI value and the migration outflows per State show a positive ($\rho$ = 0.25) and significant (p-value = 1.558e-07) correlation. However, it is not conclusive the type of relationship between the average of days with PM2.5 registered and the migration outflows, because the interval at 95% of confidence falls between negative and positive values and the relationship is not statistically significant.  
 
 ```{r Initial Correlations, echo=FALSE, message=FALSE, warning=FALSE}
 # Initial correlation tests
@@ -448,16 +453,67 @@ cor.unhealthy.days.migrants <- cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.
 cor.AQI.days.migrants <- cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Max.AQI, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
 
 cor.PM2.5.days.migrants <- cor.test(AQI_Mig.outflows_by.state_2013_2020$Avg.Days.PM2.5, AQI_Mig.outflows_by.state_2013_2020$Migrants.outflows)
+
+#cor.air.quality.migrants.2013.2020 <- AQI_Mig.outflows_by.state_2013_2020 %>% select(Avg.Unhealthy.Days, Avg.Max.AQI, Avg.Days.PM2.5, Migrants.outflows) %>% na.omit()
+  
+#correlation.matrix <- cor(cor.air.quality.migrants.2013.2020)
 ```
+
 
 ```{r table2, echo=FALSE, results='asis'}
-cat(' Table: \\label{tab:table2}Correlation between air quality indicators and migration outflows 2013-2020
-                                                                |  Confidence Interval  |
-                                                                |         95%           |
-|Correlations        | Migrants Outflows  |    t    | p-value   |   Min     |  Max      |
-|------------------- |--------------------|---------|-----------|-----------|-----------|
-|Avg. unhealthy days |      0.2921202     |  6.0936 | 2.609e-09 | 0.1997911 | 0.3793075 |
-|Avg. maximum AQI    |      0.2586106     |  5.341  | 1.558e-07 | 0.1647361 | 0.3478420 | |Avg. days PM2.5     |     -0.02109288    | -0.4209 |   0.6741  | -0.118899 | 0.07711834|')
+cat('Table: \\label{tab:table2} Correlation between air quality indicators and migration outflows 2013-2020
 
+|Variables           | Migrants Outflows  |    t    | p-value   |   Min      |  Max       |
+|:-----------------: |:------------------:|:-------:|:---------:|:---------: |:---------: |
+|Avg. unhealthy days |      0.2921202     |  6.0936 | 2.609e-09 | 0.1997911  | 0.3793075  |
+|Avg. maximum AQI    |      0.2586106     |  5.341  | 1.558e-07 | 0.1647361  | 0.3478420  |    
+|Avg. days PM2.5     |     -0.02109288    | -0.4209 |   0.6741  | -0.118899  | 0.07711834 |')
 
 ```
+
+### Regression Analysis 
+
+To understand better the true effect of air quality in the inter-state migration outflows, we run a linear regression with the following specification: $$ Mig.out = \alpha + \beta_1*Avg.unhealth.days + \beta_2*Avg.max.AQI + \beta_3*Avg.days.PM2.5 + \beta_4*Year + \beta_5*State + \epsilon $$  
+
+We assume that migration is explained by the average unhealthy days, the average maximum AQI value, the average days with PM2.5, and we include some Year and State Dummies to control for any effect per year or State.  
+```{r Regression Analysis, echo=FALSE, message=FALSE, warning=FALSE}
+#Regression - migration and air quality indicators
+
+regression.AQI.migration <- lm(data = AQI_Mig.outflows_by.state_2013_2020, Migrants.outflows ~ Avg.Unhealthy.Days + Avg.Max.AQI + Avg.Days.PM2.5 + Year + State)
+
+#step(regression.AQI.migration)
+#jtools::summ(regression.AQI.migration)
+```
+
+Table [3](#tab:table3) shows the results. In general, the model predicts 94% percent of the variability of migration outflows, which is a high value given that there are many other economic and social variables that motivates migration that we are disregarding (though some of these effects may be partially capture by the Year and State control variables). The high R-Squared could also result from a high correlation between the explanatory variables (which is possible because all express the same phenomenon) and means that the model is highly biased. 
+
+The results also indicate that the only variable highly statistically significant to explain migration outflows is the Average Unhealthy Days per State, and the coefficient suggests that when the average unhealthy days increase by one unit, about 7,535 people move out to a different State. On the other hand, the variables Average Maximum AQI value and Average Days with PM2.5 are not significant.
+\newpage
+
+```{r table3, echo=FALSE, results='asis'}
+cat('Table: \\label{tab:table2} Regression Analysis - migration outflows and air quality indicators
+
+| **Migration Outflows** 	| *Coefficient* 	| *S.E.*  	| *p-value* 	|
+|------------------------	|:--------------:	|:--------:	|:----------:	|
+| **Intercept**          	| -3688365      	| 1306551 	| 0.01      	|
+| **Avg.Unhealthy.Days** 	| 7535.74       	| 2104.64 	| 0.00      	|
+| **Avg.Max.AQI**        	| -20.70        	| 70.14   	| 0.77      	|
+| **Avg.Days.PM2.5**     	| -17.46        	| 88.63   	| 0.84      	|
+| *R-squared*            	| 0.95          	|         	|           	|
+| *Adj.R-squared*        	| 0.94          	|         	|           	|
+| *F*                    	| 124.32        	|         	| 0.00      	|
+| *N*                    	| 400           	|         	|           	|')
+
+```
+
+It is important to mention that this analysis is not conclusive, because it does not allow us to infer anything about causality. We assume that air quality causes migration, but the other way around could also be true. To address endogeneity problems, a more sophisticated analysis is needed.
+
+## Summary and Conclusions
+
+This project does a first approximation to the relationship between inter-state migration and air quality in the United States. Apparently, the causal relationship between air quality and migration has not been explored enough yet because of the empirical challenges it imposes to researchers (see Chen, S., Oliva, P., & Zhang, P. (2022), p.2). Using the air quality information provided by EPA and data about taxpayer's current state of residence, we analyze if bad air quality indicators are related to high migration outflows during the period 2013 and 2020. Through a descriptive analysis, we found that there is a high dispersion of air quality throughout the United States, with some states performing constantly bad (most of them along the west coast) while others seem to slightly improve or remain the same. A visual analysis allows us to discover a positive relationship between the number of days with air quality considered as unhealthy and the migration outflows, and the average maximum AQI value and the migration outflows (not in the case of the average PM2.5 days and the migration outflows). Then, we applied the Pearson's correlation test and found that indeed the relationship is positive and significant for the cases aforementioned. Finally, through a linear regression, after removing year and State effects, we discover that the only statistically significant variable affecting the migration outflows is the average unhealthy days. However, these results must be interpreted with caution. First, taking the averages by State for the air quality indicators is misleading because it disregards the distribution of the indicator inside each State. Second, the regression analysis performed does not eliminate the double causality problem that we face. Third, a better approach would be to take the net migration outflows, instead of the number of people just leaving each State. 
+
+
+
+
+
+
