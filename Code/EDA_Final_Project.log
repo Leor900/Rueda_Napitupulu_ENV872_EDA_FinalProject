@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.12.8)  13 DEC 2022 11:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.12.8)  13 DEC 2022 12:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -576,75 +576,80 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 \openout6 = `EDA_Final_Project.lof'.
 
 [4] [5]
-Underfull \hbox (badness 10000) in paragraph at lines 193--199
+Underfull \hbox (badness 10000) in paragraph at lines 209--215
 \T1/lmr/m/n/10 ([]$https : / / www . bls . gov / respondents / mwr / electronic -[] data -[] interchange / appendix -[] d -[] usps -[] state -[] abbreviations -[]
  []
 
 [6] [7]
-<EDA_Final_Project_files/figure-latex/fig1-1.pdf, id=146, 361.35pt x 361.35pt>
+<EDA_Final_Project_files/figure-latex/fig1-1.pdf, id=152, 361.35pt x 361.35pt>
 File: EDA_Final_Project_files/figure-latex/fig1-1.pdf Graphic file (type pdf)
 <use EDA_Final_Project_files/figure-latex/fig1-1.pdf>
-Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig1-1.pdf  used on input line 322.
+Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig1-1.pdf  used on input line 338.
 (pdftex.def)             Requested size: 361.34912pt x 361.34912pt.
 [8 <./EDA_Final_Project_files/figure-latex/fig1-1.pdf>]
-<EDA_Final_Project_files/figure-latex/fig2-1.pdf, id=161, 361.35pt x 361.35pt>
+<EDA_Final_Project_files/figure-latex/fig2-1.pdf, id=167, 361.35pt x 361.35pt>
 File: EDA_Final_Project_files/figure-latex/fig2-1.pdf Graphic file (type pdf)
 <use EDA_Final_Project_files/figure-latex/fig2-1.pdf>
-Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig2-1.pdf  used on input line 350.
+Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig2-1.pdf  used on input line 366.
 (pdftex.def)             Requested size: 361.34912pt x 361.34912pt.
 [9 <./EDA_Final_Project_files/figure-latex/fig2-1.pdf>]
-<EDA_Final_Project_files/figure-latex/fig3-1.pdf, id=177, 361.35pt x 361.35pt>
+<EDA_Final_Project_files/figure-latex/fig3-1.pdf, id=183, 361.35pt x 361.35pt>
 File: EDA_Final_Project_files/figure-latex/fig3-1.pdf Graphic file (type pdf)
 <use EDA_Final_Project_files/figure-latex/fig3-1.pdf>
-Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig3-1.pdf  used on input line 381.
+Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig3-1.pdf  used on input line 397.
 (pdftex.def)             Requested size: 361.34912pt x 361.34912pt.
-<EDA_Final_Project_files/figure-latex/fig4-1.pdf, id=179, 361.35pt x 361.35pt>
+[10 <./EDA_Final_Project_files/figure-latex/fig3-1.pdf>]
+<EDA_Final_Project_files/figure-latex/fig4-1.pdf, id=199, 361.35pt x 361.35pt>
 File: EDA_Final_Project_files/figure-latex/fig4-1.pdf Graphic file (type pdf)
 <use EDA_Final_Project_files/figure-latex/fig4-1.pdf>
-Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig4-1.pdf  used on input line 408.
+Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig4-1.pdf  used on input line 424.
 (pdftex.def)             Requested size: 361.34912pt x 361.34912pt.
-[10 <./EDA_Final_Project_files/figure-latex/fig3-1.pdf>] [11 <./EDA_Final_Project_files/figure-latex/fig4-1.pdf>]
-<EDA_Final_Project_files/figure-latex/fig5-1.pdf, id=209, 361.35pt x 361.35pt>
+[11 <./EDA_Final_Project_files/figure-latex/fig4-1.pdf>]
+<EDA_Final_Project_files/figure-latex/fig5-1.pdf, id=215, 361.35pt x 361.35pt>
 File: EDA_Final_Project_files/figure-latex/fig5-1.pdf Graphic file (type pdf)
 <use EDA_Final_Project_files/figure-latex/fig5-1.pdf>
-Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig5-1.pdf  used on input line 441.
+Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig5-1.pdf  used on input line 457.
 (pdftex.def)             Requested size: 361.34912pt x 361.34912pt.
 [12 <./EDA_Final_Project_files/figure-latex/fig5-1.pdf>]
-<EDA_Final_Project_files/figure-latex/fig6-1.pdf, id=226, 361.35pt x 361.35pt>
+<EDA_Final_Project_files/figure-latex/fig6-1.pdf, id=232, 361.35pt x 361.35pt>
 File: EDA_Final_Project_files/figure-latex/fig6-1.pdf Graphic file (type pdf)
 <use EDA_Final_Project_files/figure-latex/fig6-1.pdf>
-Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig6-1.pdf  used on input line 471.
+Package pdftex.def Info: EDA_Final_Project_files/figure-latex/fig6-1.pdf  used on input line 487.
 (pdftex.def)             Requested size: 361.34912pt x 361.34912pt.
 [13 <./EDA_Final_Project_files/figure-latex/fig6-1.pdf>] [14]
-Underfull \hbox (badness 10000) in alignment at lines 577--591
+Underfull \hbox (badness 10000) in alignment at lines 593--607
 [] [] [] []
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 591--603
+Underfull \hbox (badness 10000) in alignment at lines 607--619
 [] [] [] []
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 603--613
+Underfull \hbox (badness 10000) in alignment at lines 619--629
 [] [] [] []
  []
 
-[15] [16] (./EDA_Final_Project.aux)
+[15] [16]
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 690.
+(c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
+File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+) [17] (./EDA_Final_Project.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `EDA_Final_Project.out' has not changed.
-(rerunfilecheck)             Checksum: FFA58BB28AFF5887A842ED501F47D958;2939.
+(rerunfilecheck)             Checksum: 6D9A1940159AE698096992E92593D969;3035.
  ) 
 Here is how much of TeX's memory you used:
- 13156 strings out of 476928
- 213206 string characters out of 5823806
- 567585 words of memory out of 5000000
- 34114 multiletter control sequences out of 15000+600000
- 541025 words of font info for 74 fonts, out of 8000000 for 9000
+ 13194 strings out of 476928
+ 214151 string characters out of 5823806
+ 568620 words of memory out of 5000000
+ 34145 multiletter control sequences out of 15000+600000
+ 541390 words of font info for 75 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 72i,10n,77p,419b,558s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,10n,77p,419b,554s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 pdfTeX warning (dest): name{tab:table3} has been referenced but does not exist, replaced by a fixed one
 
@@ -672,11 +677,11 @@ pdfTeX warning (dest): name{fig:fig1} has been referenced but does not exist, re
 
 pdfTeX warning (dest): name{tab:table1} has been referenced but does not exist, replaced by a fixed one
 
-{c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}<c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx9.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr5.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr9.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri12.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb>
-Output written on EDA_Final_Project.pdf (16 pages, 966021 bytes).
+{c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}<c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx9.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr5.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr9.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri12.pfb><c:/Users/leor9/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb>
+Output written on EDA_Final_Project.pdf (17 pages, 970128 bytes).
 PDF statistics:
- 341 PDF objects out of 1000 (max. 8388607)
- 272 compressed objects within 3 object streams
- 64 named destinations out of 1000 (max. 500000)
- 135 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 361 PDF objects out of 1000 (max. 8388607)
+ 290 compressed objects within 3 object streams
+ 67 named destinations out of 1000 (max. 500000)
+ 143 words of extra memory for PDF output out of 10000 (max. 10000000)
 
