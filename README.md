@@ -17,7 +17,7 @@ This project analyzes the correlation between air quality and migration in the U
 
 - Leonardo Rueda (jr466@duke.edu)
 - Theo Napitupulu (yosia.napitupulu@duke.edu)
-Sanford School of Public Policy, Duke University.
+- Sanford School of Public Policy, Duke University.
 
 ## Keywords
 
